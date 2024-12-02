@@ -33,9 +33,9 @@ func doDeviceSpecificSet(socketKey string, setting string, arg1 string, arg2 str
 		case "state":
 			return setState(socketKey, arg1, arg2)
 		case "trigger":
-			return setTrigger(socketKey, arg1, arg2)
+			return setTrigger(socketKey, arg1, arg2) 
 		case "timedtrigger":
-			return setTimedtrigger(socketKey, arg1, arg2, arg3)
+			return setTimedTrigger(socketKey, arg1, arg2, arg3)
 	}
 
 	// If we get here, we didn't recognize the setting.  Send an error back to the config writer who had a bad URL.

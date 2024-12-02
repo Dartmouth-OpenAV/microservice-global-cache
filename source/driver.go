@@ -115,8 +115,6 @@ func getState(socketKey string, port string) (string, error) {
 
 func setTrigger(socketKey string, port string, sleep string) (string, error) {
 	function := "setTrigger"
-	// framework.Log( "[" + state + "]" )
-	// framework.Log( "[" + `"true"` + "]" )
 
 	if port == "1" {
 		port = "1:1"
@@ -130,13 +128,17 @@ func setTrigger(socketKey string, port string, sleep string) (string, error) {
 		return port, errors.New(errMsg )
 	}
 
+	sleepNoQuotes := strings.Replace(sleep, `"`, "", -1) // Get rid of the JSON body quotes
+	intSleep, err := strconv.Atoi(sleepNoQuotes)
+	if( err!=nil ) {
+		errMsg := fmt.Sprintf(function+" - can't parse sleep time to int: "+sleep)
+		framework.AddToErrors(socketKey, errMsg)
+	}
 
 	// step 1 - we pull the trigger: "on" position
 	baseStr := "setstate"
 	commandStr := baseStr + "," + port + ",1"
-	// resp, err := SendCommand(socketKey, commandStr, baseStr)
 	sent := framework.WriteLineToSocket( socketKey, commandStr + string(0xD) + string(0xA) )
-	//framework.Log(fmt.Sprintf(function + " - ot resp: " + string(resp) + "\n")
 	if !sent {
 		errMsg := fmt.Sprintf(function+" - error sending command")
 		framework.AddToErrors(socketKey, errMsg)
@@ -153,23 +155,18 @@ func setTrigger(socketKey string, port string, sleep string) (string, error) {
 		return errMsg, errors.New(errMsg)
 	}
 
-	// step 2 - sleep for 1
-	intVar, err := strconv.Atoi(sleep)
-	if( err!=nil ) {
-		errMsg := fmt.Sprintf(function+" - can't parse sleep time to int: "+sleep)
-		framework.AddToErrors(socketKey, errMsg)
-	}
-	if( intVar>5 ) {
+	// step 2 - sleep for the specified number of seconds
+	if( intSleep>5 ) {
 		errMsg := fmt.Sprintf(function+" - sleep time can't be greater than 5")
 		framework.AddToErrors(socketKey, errMsg)
-		intVar = 5
+		intSleep = 5
 	}
-	if( intVar<1 ) {
+	if( intSleep<1 ) {
 		errMsg := fmt.Sprintf(function+" - sleep time can't be less than 1")
 		framework.AddToErrors(socketKey, errMsg)
-		intVar = 1
+		intSleep = 1
 	}
-	time.Sleep( time.Duration(intVar) * time.Second )
+	time.Sleep( time.Duration(intSleep) * time.Second )
 
 
 	// step 3 - back to "off"
@@ -198,13 +195,19 @@ func setTrigger(socketKey string, port string, sleep string) (string, error) {
 	return "ok", nil
 }
 
-func setTimedtrigger(socketKey string, port1 string, port2 string, sleep string) (string, error) {
+func setTimedTrigger(socketKey string, port1 string, port2 string, sleep string) (string, error) {
 	function := "setTimedtrigger"
+
+	sleepNoQuotes := strings.Replace(sleep, `"`, "", -1) // Get rid of the JSON body quotes
+	floatSleep, err := strconv.ParseFloat(sleepNoQuotes, 64)
+	if( err!=nil ) {
+		errMsg := fmt.Sprintf(function+" - can't parse sleep time to int: "+sleep)
+		framework.AddToErrors(socketKey, errMsg)
+	}
 
 	// step 1 - run the setTrigger function which turns on trigger, sleeps for 1, then turns off trigger
 	setTrigger(socketKey, port1, "1")
-	// framework.Log( "[" + state + "]" )
-	// framework.Log( "[" + `"true"` + "]" )
+
 
 	if port1 == "1" {
 		port1 = "1:1"
@@ -230,23 +233,18 @@ func setTimedtrigger(socketKey string, port1 string, port2 string, sleep string)
 		return port2, errors.New(errMsg )
 	}
 
-	// step 2 - sleep for length of floatVar
-	floatVar, err := strconv.ParseFloat(sleep, 64)
-	if( err!=nil ) {
-		errMsg := fmt.Sprintf(function+" - can't parse sleep time to int: "+sleep)
-		framework.AddToErrors(socketKey, errMsg)
-	}
-	if( floatVar>30 ) {
+	// step 2 - sleep for the specified number of seconds
+	if( floatSleep>30 ) {
 		errMsg := fmt.Sprintf(function+" - sleep time can't be greater than 30")
 		framework.AddToErrors(socketKey, errMsg)
-		floatVar = 30
+		floatSleep = 30
 	}
-	if( floatVar<1 ) {
+	if( floatSleep<1 ) {
 		errMsg := fmt.Sprintf(function+" - sleep time can't be less than 1")
 		framework.AddToErrors(socketKey, errMsg)
-		floatVar = 1
+		floatSleep = 1
 	}
-	time.Sleep( time.Duration(floatVar - 1) * time.Second)
+	time.Sleep( time.Duration(floatSleep - 1) * time.Second)
 
 	// step 3 - then we pull the trigger: "on" position for both ports at the same time to "stop" the screen
 	baseStr := "setstate"
@@ -336,4 +334,4 @@ func setTimedtrigger(socketKey string, port1 string, port2 string, sleep string)
 	}
 	// If we got here, the response was good, so successful return with the state indication
 	return "ok", nil
-}
+} 
