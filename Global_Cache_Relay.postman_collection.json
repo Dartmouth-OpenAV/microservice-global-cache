@@ -1,0 +1,225 @@
+{
+	"info": {
+		"_postman_id": "b26bc7ef-2065-4769-82d1-1bf76f0497fe",
+		"name": "Global Cache Relay",
+		"description": "A collection of all possible GET and PUT calls for the Global Cache Relay microservice. You can replace the values in double curly brackets manually or create matching environment variables that will automatically fill in the values.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "10379859"
+	},
+	"item": [
+		{
+			"name": "SET Trigger",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "\"1\""
+				},
+				"url": {
+					"raw": "http://{{microserviceURL}}/{{deviceFQDN}}/trigger/{{portNumber}}",
+					"protocol": "http",
+					"host": [
+						"{{microserviceURL}}"
+					],
+					"path": [
+						"{{deviceFQDN}}",
+						"trigger",
+						"{{portNumber}}"
+					]
+				},
+				"description": "This request triggers the relay for one of the Global Cache's ports by setting the state to \"on\", sleeping for a few seconds, and then setting the state back to\"off\".  \nThe port number is accepted in the path and must be 1,2, or 3. The number of seconds to sleep is accepted in the body and must be between 1 and 5."
+			},
+			"response": [
+				{
+					"name": "SET Trigger",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "\"1\""
+						},
+						"url": {
+							"raw": "http://{{microserviceURL}}/{{deviceFQDN}}/trigger/{{portNumber}}",
+							"protocol": "http",
+							"host": [
+								"{{microserviceURL}}"
+							],
+							"path": [
+								"{{deviceFQDN}}",
+								"trigger",
+								"{{portNumber}}"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "\"ok\""
+				}
+			]
+		},
+		{
+			"name": "SET Timed Trigger",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "\"15\""
+				},
+				"url": {
+					"raw": "http://{{microserviceURL}}/{{deviceFQDN}}/timedtrigger/{{portNumber1}}/{{portNumber2}}",
+					"protocol": "http",
+					"host": [
+						"{{microserviceURL}}"
+					],
+					"path": [
+						"{{deviceFQDN}}",
+						"timedtrigger",
+						"{{portNumber1}}",
+						"{{portNumber2}}"
+					]
+				},
+				"description": "This request calls set trigger for portNumber1, sleeps for a specified amount of seconds, then calls set state for portNumber1 and portNumber2 to set them both to \"on\", and then calls set state again to set them both to \"off\".\n\nAn example use case for this endpoint is to trigger a projector screen to come down for a specified number of seconds and then stop.\n\nportNumber1 and portNumber2 are accepted in the path and the number of seconds to sleep is accepted in the body. The port numbers can be 1,2, or 3 and the seconds to sleep must be between 1 and 30."
+			},
+			"response": [
+				{
+					"name": "SET Timed Trigger",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "\"15\""
+						},
+						"url": {
+							"raw": "http://{{microserviceURL}}/{{deviceFQDN}}/timedtrigger/{{portNumber1}}/{{portNumber2}}",
+							"protocol": "http",
+							"host": [
+								"{{microserviceURL}}"
+							],
+							"path": [
+								"{{deviceFQDN}}",
+								"timedtrigger",
+								"{{portNumber1}}",
+								"{{portNumber2}}"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "\"ok\""
+				}
+			]
+		},
+		{
+			"name": "SET State",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "\"on\""
+				},
+				"url": {
+					"raw": "http://{{microserviceURL}}/{{deviceFQDN}}/state/{{portNumber}}",
+					"protocol": "http",
+					"host": [
+						"{{microserviceURL}}"
+					],
+					"path": [
+						"{{deviceFQDN}}",
+						"state",
+						"{{portNumber}}"
+					]
+				},
+				"description": "This request sets the state of a relay for a given port on the Global Cache. The port number is accepted in the path and must be 1,2, or 3. The state is accepted in the body as \"on\" or \"off\"."
+			},
+			"response": [
+				{
+					"name": "SET State",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "\"on\""
+						},
+						"url": {
+							"raw": "http://{{microserviceURL}}/{{deviceFQDN}}/state/{{portNumber}}",
+							"protocol": "http",
+							"host": [
+								"{{microserviceURL}}"
+							],
+							"path": [
+								"{{deviceFQDN}}",
+								"state",
+								"{{portNumber}}"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "\"ok\""
+				}
+			]
+		},
+		{
+			"name": "GET State",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{microserviceURL}}/{{deviceFQDN}}/state/{{portNumber}}",
+					"protocol": "http",
+					"host": [
+						"{{microserviceURL}}"
+					],
+					"path": [
+						"{{deviceFQDN}}",
+						"state",
+						"{{portNumber}}"
+					]
+				},
+				"description": "Gets the state of the relay for one of the Global Cache's ports. Accepts 1, 2, or 3 as the port number in the path. Returns \"on\" or \"off\"."
+			},
+			"response": [
+				{
+					"name": "GET State",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{microserviceURL}}/{{deviceFQDN}}/state/{{portNumber}}",
+							"protocol": "http",
+							"host": [
+								"{{microserviceURL}}"
+							],
+							"path": [
+								"{{deviceFQDN}}",
+								"state",
+								"{{portNumber}}"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "\"on\""
+				}
+			]
+		}
+	]
+}
