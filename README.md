@@ -6,4 +6,6 @@ The Global Caché IP2CC-P is a network device that provides IP-to-contact closur
 
 [Global Cache IP2CC iTach](https://www.globalcache.co.uk/product/global-cache-ip2cc-itach-tcp-ip-to-contact-closure-network-adapter-relay/)
 
+[curl test documentation](https://github.com/Dartmouth-OpenAV/documentation/blob/main/curl_test_readme.md)
+
 ![](https://github.com/Dartmouth-OpenAV/microservice-global-cache/blob/main/photo.png)
