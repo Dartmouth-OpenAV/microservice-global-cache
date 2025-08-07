@@ -334,4 +334,34 @@ func setTimedTrigger(socketKey string, port1 string, port2 string, sleep string)
 	}
 	// If we got here, the response was good, so successful return with the state indication
 	return "ok", nil
-} 
+}
+
+func getDevices(socketKey string) (string, error) {
+	function := "getDevices"
+
+	baseStr := "getdevices"
+	commandStr := baseStr
+	sent := framework.WriteLineToSocket(socketKey, commandStr+string(0xD)+string(0xA))
+	if !sent {
+		errMsg := fmt.Sprintf(function + " - error sending command")
+		framework.AddToErrors(socketKey, errMsg)
+		return errMsg, errors.New(errMsg)
+	}
+
+	resp := framework.ReadLineFromSocket(socketKey)
+	framework.Log(fmt.Sprintf(function + " - resp: " + string(resp) + "\n"))
+
+	value := resp
+	// If we got here, the response was good, so successful return with the state indication
+	return value, nil
+}
+
+func healthCheck(socketKey string) (string, error) {
+	_, err := getDevices(socketKey)
+	returnStr := "true"
+	if err != nil && strings.Contains(err.Error(), "error sending command") {
+		returnStr = "false"
+	}
+	return `"` + returnStr + `"`, nil
+}
+ 
