@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
 	"github.com/Dartmouth-OpenAV/microservice-framework/framework"
 )
 
@@ -21,36 +22,36 @@ func setState(socketKey string, port string, state string) (string, error) {
 	} else {
 		errMsg := fmt.Sprintf(function + " - unrecognized port value: " + port)
 		framework.AddToErrors(socketKey, errMsg)
-		return port, errors.New(errMsg )
+		return port, errors.New(errMsg)
 	}
 
 	if state == `"on"` {
 		state = "1"
 	} else if state == `"off"` {
-		state = "0" 
+		state = "0"
 	} else {
 		errMsg := fmt.Sprintf(function + " - unrecognized state value: " + state)
 		framework.AddToErrors(socketKey, errMsg)
-		return state, errors.New(errMsg )
+		return state, errors.New(errMsg)
 	}
 
 	baseStr := "setstate"
 	commandStr := baseStr + "," + port + "," + state
 	// resp, err := SendCommand(socketKey, commandStr, baseStr)
-	sent := framework.WriteLineToSocket( socketKey, commandStr + string(0xD) + string(0xA) )
+	sent := framework.WriteLineToSocket(socketKey, commandStr+string(0xD)+string(0xA))
 	//framework.Log(fmt.Sprintf(function + " - ot resp: " + string(resp) + "\n")
 	if !sent {
-		errMsg := fmt.Sprintf(function+" - error sending command")
+		errMsg := fmt.Sprintf(function + " - error sending command")
 		framework.AddToErrors(socketKey, errMsg)
 		return errMsg, errors.New(errMsg)
 	}
 
-	resp := framework.ReadLineFromSocket( socketKey )
+	resp := framework.ReadLineFromSocket(socketKey)
 
 	framework.Log(fmt.Sprintf(function + " - resp: " + string(resp) + "\n"))
 
-	if( resp!=commandStr ) {
-		errMsg := fmt.Sprintf(function+" - unrecognized response to state command: " + resp )
+	if resp != commandStr {
+		errMsg := fmt.Sprintf(function + " - unrecognized response to state command: " + resp)
 		framework.AddToErrors(socketKey, errMsg)
 		return errMsg, errors.New(errMsg)
 	}
@@ -58,7 +59,6 @@ func setState(socketKey string, port string, state string) (string, error) {
 	// If we got here, the response was good, so successful return with the state indication
 	return "ok", nil
 }
-
 
 func getState(socketKey string, port string) (string, error) {
 	function := "getState"
@@ -72,21 +72,21 @@ func getState(socketKey string, port string) (string, error) {
 	} else {
 		errMsg := fmt.Sprintf(function + " - unrecognized port value: " + port)
 		framework.AddToErrors(socketKey, errMsg)
-		return port, errors.New(errMsg )
+		return port, errors.New(errMsg)
 	}
-	
+
 	baseStr := "getstate"
 	commandStr := baseStr + "," + port
 	// resp, err := SendCommand(socketKey, commandStr, baseStr)
-	sent := framework.WriteLineToSocket( socketKey, commandStr + string(0xD) + string(0xA) )
+	sent := framework.WriteLineToSocket(socketKey, commandStr+string(0xD)+string(0xA))
 	//framework.Log(fmt.Sprintf(function + " - ot resp: " + string(resp) + "\n")
 	if !sent {
-		errMsg := fmt.Sprintf(function+" - error sending command")
+		errMsg := fmt.Sprintf(function + " - error sending command")
 		framework.AddToErrors(socketKey, errMsg)
 		return errMsg, errors.New(errMsg)
 	}
 
-	resp := framework.ReadLineFromSocket( socketKey )
+	resp := framework.ReadLineFromSocket(socketKey)
 	framework.Log(fmt.Sprintf(function + " - resp: " + string(resp) + "\n"))
 
 	// if len(respMute) != 2 {
@@ -112,7 +112,6 @@ func getState(socketKey string, port string) (string, error) {
 	return value, nil
 }
 
-
 func setTrigger(socketKey string, port string, sleep string) (string, error) {
 	function := "setTrigger"
 
@@ -125,68 +124,67 @@ func setTrigger(socketKey string, port string, sleep string) (string, error) {
 	} else {
 		errMsg := fmt.Sprintf(function + " - unrecognized port value: " + port)
 		framework.AddToErrors(socketKey, errMsg)
-		return port, errors.New(errMsg )
+		return port, errors.New(errMsg)
 	}
 
 	sleepNoQuotes := strings.Replace(sleep, `"`, "", -1) // Get rid of the JSON body quotes
 	intSleep, err := strconv.Atoi(sleepNoQuotes)
-	if( err!=nil ) {
-		errMsg := fmt.Sprintf(function+" - can't parse sleep time to int: "+sleep)
+	if err != nil {
+		errMsg := fmt.Sprintf(function + " - can't parse sleep time to int: " + sleep)
 		framework.AddToErrors(socketKey, errMsg)
 	}
 
 	// step 1 - we pull the trigger: "on" position
 	baseStr := "setstate"
 	commandStr := baseStr + "," + port + ",1"
-	sent := framework.WriteLineToSocket( socketKey, commandStr + string(0xD) + string(0xA) )
+	sent := framework.WriteLineToSocket(socketKey, commandStr+string(0xD)+string(0xA))
 	if !sent {
-		errMsg := fmt.Sprintf(function+" - error sending command")
+		errMsg := fmt.Sprintf(function + " - error sending command")
 		framework.AddToErrors(socketKey, errMsg)
 		return errMsg, errors.New(errMsg)
 	}
 
-	resp := framework.ReadLineFromSocket( socketKey )
+	resp := framework.ReadLineFromSocket(socketKey)
 
 	framework.Log(fmt.Sprintf(function + " - resp: " + string(resp) + "\n"))
 
-	if( resp!=commandStr ) {
-		errMsg := fmt.Sprintf(function+" - unrecognized response to state command: " + resp )
+	if resp != commandStr {
+		errMsg := fmt.Sprintf(function + " - unrecognized response to state command: " + resp)
 		framework.AddToErrors(socketKey, errMsg)
 		return errMsg, errors.New(errMsg)
 	}
 
 	// step 2 - sleep for the specified number of seconds
-	if( intSleep>5 ) {
-		errMsg := fmt.Sprintf(function+" - sleep time can't be greater than 5")
+	if intSleep > 5 {
+		errMsg := fmt.Sprintf(function + " - sleep time can't be greater than 5")
 		framework.AddToErrors(socketKey, errMsg)
 		intSleep = 5
 	}
-	if( intSleep<1 ) {
-		errMsg := fmt.Sprintf(function+" - sleep time can't be less than 1")
+	if intSleep < 1 {
+		errMsg := fmt.Sprintf(function + " - sleep time can't be less than 1")
 		framework.AddToErrors(socketKey, errMsg)
 		intSleep = 1
 	}
-	time.Sleep( time.Duration(intSleep) * time.Second )
-
+	time.Sleep(time.Duration(intSleep) * time.Second)
 
 	// step 3 - back to "off"
 	baseStr = "setstate"
 	commandStr = baseStr + "," + port + ",0"
 	// resp, err := SendCommand(socketKey, commandStr, baseStr)
-	sent = framework.WriteLineToSocket( socketKey, commandStr + string(0xD) + string(0xA) )
+	sent = framework.WriteLineToSocket(socketKey, commandStr+string(0xD)+string(0xA))
 	//framework.Log(fmt.Sprintf(function + " - ot resp: " + string(resp) + "\n")
 	if !sent {
-		errMsg := fmt.Sprintf(function+" - error sending command")
+		errMsg := fmt.Sprintf(function + " - error sending command")
 		framework.AddToErrors(socketKey, errMsg)
 		return errMsg, errors.New(errMsg)
 	}
 
-	resp = framework.ReadLineFromSocket( socketKey )
+	resp = framework.ReadLineFromSocket(socketKey)
 
 	framework.Log(fmt.Sprintf(function + " - resp: " + string(resp) + "\n"))
 
-	if( resp!=commandStr ) {
-		errMsg := fmt.Sprintf(function+" - unrecognized response to state command: " + resp )
+	if resp != commandStr {
+		errMsg := fmt.Sprintf(function + " - unrecognized response to state command: " + resp)
 		framework.AddToErrors(socketKey, errMsg)
 		return errMsg, errors.New(errMsg)
 	}
@@ -200,14 +198,13 @@ func setTimedTrigger(socketKey string, port1 string, port2 string, sleep string)
 
 	sleepNoQuotes := strings.Replace(sleep, `"`, "", -1) // Get rid of the JSON body quotes
 	floatSleep, err := strconv.ParseFloat(sleepNoQuotes, 64)
-	if( err!=nil ) {
-		errMsg := fmt.Sprintf(function+" - can't parse sleep time to int: "+sleep)
+	if err != nil {
+		errMsg := fmt.Sprintf(function + " - can't parse sleep time to int: " + sleep)
 		framework.AddToErrors(socketKey, errMsg)
 	}
 
 	// step 1 - run the setTrigger function which turns on trigger, sleeps for 1, then turns off trigger
 	setTrigger(socketKey, port1, "1")
-
 
 	if port1 == "1" {
 		port1 = "1:1"
@@ -218,7 +215,7 @@ func setTimedTrigger(socketKey string, port1 string, port2 string, sleep string)
 	} else {
 		errMsg := fmt.Sprintf(function + " - unrecognized port1 value: " + port1)
 		framework.AddToErrors(socketKey, errMsg)
-		return port1, errors.New(errMsg )
+		return port1, errors.New(errMsg)
 	}
 
 	if port2 == "1" {
@@ -230,105 +227,105 @@ func setTimedTrigger(socketKey string, port1 string, port2 string, sleep string)
 	} else {
 		errMsg := fmt.Sprintf(function + " - unrecognized port2 value: " + port2)
 		framework.AddToErrors(socketKey, errMsg)
-		return port2, errors.New(errMsg )
+		return port2, errors.New(errMsg)
 	}
 
 	// step 2 - sleep for the specified number of seconds
-	if( floatSleep>30 ) {
-		errMsg := fmt.Sprintf(function+" - sleep time can't be greater than 30")
+	if floatSleep > 30 {
+		errMsg := fmt.Sprintf(function + " - sleep time can't be greater than 30")
 		framework.AddToErrors(socketKey, errMsg)
 		floatSleep = 30
 	}
-	if( floatSleep<1 ) {
-		errMsg := fmt.Sprintf(function+" - sleep time can't be less than 1")
+	if floatSleep < 1 {
+		errMsg := fmt.Sprintf(function + " - sleep time can't be less than 1")
 		framework.AddToErrors(socketKey, errMsg)
 		floatSleep = 1
 	}
-	time.Sleep( time.Duration(floatSleep - 1) * time.Second)
+	time.Sleep(time.Duration(floatSleep-1) * time.Second)
 
 	// step 3 - then we pull the trigger: "on" position for both ports at the same time to "stop" the screen
 	baseStr := "setstate"
 	commandStr := baseStr + "," + port1 + ",1"
 	// resp, err := SendCommand(socketKey, commandStr, baseStr)
-	sent := framework.WriteLineToSocket( socketKey, commandStr + string(0xD) + string(0xA) )
+	sent := framework.WriteLineToSocket(socketKey, commandStr+string(0xD)+string(0xA))
 	//framework.Log(fmt.Sprintf(function + " - ot resp: " + string(resp) + "\n")
 	if !sent {
-		errMsg := fmt.Sprintf(function+" - error sending command")
+		errMsg := fmt.Sprintf(function + " - error sending command")
 		framework.AddToErrors(socketKey, errMsg)
 		return errMsg, errors.New(errMsg)
 	}
 
-	resp := framework.ReadLineFromSocket( socketKey )
+	resp := framework.ReadLineFromSocket(socketKey)
 
 	framework.Log(fmt.Sprintf(function + " - resp: " + string(resp) + "\n"))
 
-	if( resp!=commandStr ) {
-		errMsg := fmt.Sprintf(function+" - unrecognized response to state command: " + resp )
+	if resp != commandStr {
+		errMsg := fmt.Sprintf(function + " - unrecognized response to state command: " + resp)
 		framework.AddToErrors(socketKey, errMsg)
 		return errMsg, errors.New(errMsg)
 	}
-	
+
 	baseStr = "setstate"
 	commandStr = baseStr + "," + port2 + ",1"
 	// resp, err := SendCommand(socketKey, commandStr, baseStr)
-	sent = framework.WriteLineToSocket( socketKey, commandStr + string(0xD) + string(0xA) )
+	sent = framework.WriteLineToSocket(socketKey, commandStr+string(0xD)+string(0xA))
 	//framework.Log(fmt.Sprintf(function + " - ot resp: " + string(resp) + "\n")
 	if !sent {
-		errMsg := fmt.Sprintf(function+" - error sending command")
+		errMsg := fmt.Sprintf(function + " - error sending command")
 		framework.AddToErrors(socketKey, errMsg)
 		return errMsg, errors.New(errMsg)
 	}
 
-	resp = framework.ReadLineFromSocket( socketKey )
+	resp = framework.ReadLineFromSocket(socketKey)
 
 	framework.Log(fmt.Sprintf(function + " - resp: " + string(resp) + "\n"))
 
-	if( resp!=commandStr ) {
-		errMsg := fmt.Sprintf(function+" - unrecognized response to state command: " + resp )
+	if resp != commandStr {
+		errMsg := fmt.Sprintf(function + " - unrecognized response to state command: " + resp)
 		framework.AddToErrors(socketKey, errMsg)
 		return errMsg, errors.New(errMsg)
 	}
-	time.Sleep(time.Duration(1)*time.Second)
+	time.Sleep(time.Duration(1) * time.Second)
 
 	// step 4 - back to "off"
 	baseStr = "setstate"
 	commandStr = baseStr + "," + port1 + ",0"
 	// resp, err := SendCommand(socketKey, commandStr, baseStr)
-	sent = framework.WriteLineToSocket( socketKey, commandStr + string(0xD) + string(0xA) )
+	sent = framework.WriteLineToSocket(socketKey, commandStr+string(0xD)+string(0xA))
 	//framework.Log(fmt.Sprintf(function + " - ot resp: " + string(resp) + "\n")
 	if !sent {
-		errMsg := fmt.Sprintf(function+" - error sending command")
+		errMsg := fmt.Sprintf(function + " - error sending command")
 		framework.AddToErrors(socketKey, errMsg)
 		return errMsg, errors.New(errMsg)
 	}
 
-	resp = framework.ReadLineFromSocket( socketKey )
+	resp = framework.ReadLineFromSocket(socketKey)
 
 	framework.Log(fmt.Sprintf(function + " - resp: " + string(resp) + "\n"))
 
-	if( resp!=commandStr ) {
-		errMsg := fmt.Sprintf(function+" - unrecognized response to state command: " + resp )
+	if resp != commandStr {
+		errMsg := fmt.Sprintf(function + " - unrecognized response to state command: " + resp)
 		framework.AddToErrors(socketKey, errMsg)
 		return errMsg, errors.New(errMsg)
 	}
-	
+
 	baseStr = "setstate"
 	commandStr = baseStr + "," + port2 + ",0"
 	// resp, err := SendCommand(socketKey, commandStr, baseStr)
-	sent = framework.WriteLineToSocket( socketKey, commandStr + string(0xD) + string(0xA) )
+	sent = framework.WriteLineToSocket(socketKey, commandStr+string(0xD)+string(0xA))
 	//framework.Log(fmt.Sprintf(function + " - ot resp: " + string(resp) + "\n")
 	if !sent {
-		errMsg := fmt.Sprintf(function+" - error sending command")
+		errMsg := fmt.Sprintf(function + " - error sending command")
 		framework.AddToErrors(socketKey, errMsg)
 		return errMsg, errors.New(errMsg)
 	}
 
-	resp = framework.ReadLineFromSocket( socketKey )
+	resp = framework.ReadLineFromSocket(socketKey)
 
 	framework.Log(fmt.Sprintf(function + " - resp: " + string(resp) + "\n"))
 
-	if( resp!=commandStr ) {
-		errMsg := fmt.Sprintf(function+" - unrecognized response to state command: " + resp )
+	if resp != commandStr {
+		errMsg := fmt.Sprintf(function + " - unrecognized response to state command: " + resp)
 		framework.AddToErrors(socketKey, errMsg)
 		return errMsg, errors.New(errMsg)
 	}
@@ -357,11 +354,14 @@ func getDevices(socketKey string) (string, error) {
 }
 
 func healthCheck(socketKey string) (string, error) {
-	_, err := getDevices(socketKey)
+	resp, err := getDevices(socketKey)
 	returnStr := "true"
 	if err != nil && strings.Contains(err.Error(), "error sending command") {
+		returnStr = "no connection"
+	} else if err != nil {
 		returnStr = "false"
+	} else {
+		returnStr = returnStr + " devices: " + strings.Trim(resp, `"`)
 	}
 	return `"` + returnStr + `"`, nil
 }
- 
